@@ -43,14 +43,14 @@ npm run {script}
 
 ## Create Bot and Mini App
 
-Before you start, make sure you have already created a Telegram Bot. Here is
-a [comprehensive guide](https://docs.chatman-media.com/platform/creating-new-app)
+Before you start, make sure you have already created a Telegram Bot. Here is a
+[comprehensive guide](https://docs.chatman-media.com/platform/creating-new-app)
 on how to do it.
 
 ## Run
 
-Although Mini Apps are designed to be opened
-within [Telegram applications](https://docs.chatman-media.com/platform/about#supported-applications),
+Although Mini Apps are designed to be opened within
+[Telegram applications](https://docs.chatman-media.com/platform/about#supported-applications),
 you can still develop and test them outside of Telegram during the development
 process.
 
@@ -75,9 +75,8 @@ VITE v5.2.12  ready in 237 ms
 Here, you can see the `Local` link, available locally, and `Network` links
 accessible to all devices in the same network with the current device.
 
-To view the application, you need to open the `Local`
-link (`https://localhost:5173/equilibrium` in this example) in your
-browser:
+To view the application, you need to open the `Local` link
+(`https://localhost:5173/equilibrium` in this example) in your browser:
 
 ![Application](assets/application.png)
 
@@ -102,8 +101,8 @@ production mode unless you fully understand its implications.
 
 This boilerplate uses GitHub Pages as the way to host the application
 externally. GitHub Pages provides a CDN which will let your users receive the
-application rapidly. Alternatively, you could use such services
-as [Heroku](https://www.heroku.com/) or [Vercel](https://vercel.com).
+application rapidly. Alternatively, you could use such services as
+[Heroku](https://www.heroku.com/) or [Vercel](https://vercel.com).
 
 ### Manual Deployment
 
@@ -115,14 +114,13 @@ tool, which allows deploying your application right from your PC.
 Before running the deployment process, ensure that you have done the following:
 
 1. Replaced the `homepage` value in `package.json`. The GitHub Pages deploy tool
-   uses this value to
-   determine the related GitHub project.
+   uses this value to determine the related GitHub project.
 2. Replaced the `base` value in `vite.config.ts` and have set it to the name of
-   your GitHub
-   repository. Vite will use this value when creating paths to static assets.
+   your GitHub repository. Vite will use this value when creating paths to
+   static assets.
 
-For instance, if your GitHub username is `chatman-media` and the repository
-name is `is-awesome`, the value in the `homepage` field should be the following:
+For instance, if your GitHub username is `chatman-media` and the repository name
+is `is-awesome`, the value in the `homepage` field should be the following:
 
 ```json
 {
@@ -134,7 +132,7 @@ And `vite.config.ts` should have this content:
 
 ```ts
 export default defineConfig({
-  base: '/is-awesome/',
+  base: "/is-awesome/",
   // ...
 });
 ```
@@ -159,22 +157,20 @@ npm run deploy
 
 After the deployment completed successfully, visit the page with data according
 to your username and repository name. Here is the page link example using the
-data mentioned above:
-https://chatman-media.github.io/is-awesome
+data mentioned above: https://chatman-media.github.io/is-awesome
 
 ### GitHub Workflow
 
-To simplify the deployment process, this template includes a
-pre-configured [GitHub workflow](.github/workflows/github-pages-deploy.yml) that
-automatically deploys the project when changes are pushed to the `master`
-branch.
+To simplify the deployment process, this template includes a pre-configured
+[GitHub workflow](.github/workflows/github-pages-deploy.yml) that automatically
+deploys the project when changes are pushed to the `master` branch.
 
 To enable this workflow, create a new environment (or edit the existing one) in
 the GitHub repository settings and name it `github-pages`. Then, add the
 `master` branch to the list of deployment branches.
 
-You can find the environment settings using this
-URL: `https://github.com/{username}/{repository}/settings/environments`.
+You can find the environment settings using this URL:
+`https://github.com/{username}/{repository}/settings/environments`.
 
 ![img.png](.github/deployment-branches.png)
 
@@ -189,15 +185,15 @@ web interface. To do this, follow the link:
 
 ## TON Connect
 
-This boilerplate utilizes
-the [TON Connect](https://docs.ton.org/develop/dapps/ton-connect/overview)
-project to demonstrate how developers can integrate functionality related to TON
+This boilerplate utilizes the
+[TON Connect](https://docs.ton.org/develop/dapps/ton-connect/overview) project
+to demonstrate how developers can integrate functionality related to TON
 cryptocurrency.
 
 The TON Connect manifest used in this boilerplate is stored in the `public`
-folder, where all publicly accessible static files are located. Remember
-to [configure](https://docs.ton.org/develop/dapps/ton-connect/manifest) this
-file according to your project's information.
+folder, where all publicly accessible static files are located. Remember to
+[configure](https://docs.ton.org/develop/dapps/ton-connect/manifest) this file
+according to your project's information.
 
 ## Useful Links
 
