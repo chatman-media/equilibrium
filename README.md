@@ -7,8 +7,8 @@ and libraries:
 - [React](https://react.dev/)
 - [TypeScript](https://www.typescriptlang.org/)
 - [TON Connect](https://docs.ton.org/develop/dapps/ton-connect/overview)
-- [@telegram-apps SDK](https://docs.telegram-mini-apps.com/packages/telegram-apps-sdk/2-x)
-- [Telegram UI](https://github.com/Telegram-Mini-Apps/TelegramUI)
+- [@telegram-apps SDK](https://docs.chatman-media.com/packages/telegram-apps-sdk/2-x)
+- [Telegram UI](https://github.com/chatman-media/TelegramUI)
 - [Vite](https://vitejs.dev/)
 
 > The template was created using [npm](https://www.npmjs.com/). Therefore, it is
@@ -44,13 +44,13 @@ npm run {script}
 ## Create Bot and Mini App
 
 Before you start, make sure you have already created a Telegram Bot. Here is
-a [comprehensive guide](https://docs.telegram-mini-apps.com/platform/creating-new-app)
+a [comprehensive guide](https://docs.chatman-media.com/platform/creating-new-app)
 on how to do it.
 
 ## Run
 
 Although Mini Apps are designed to be opened
-within [Telegram applications](https://docs.telegram-mini-apps.com/platform/about#supported-applications),
+within [Telegram applications](https://docs.chatman-media.com/platform/about#supported-applications),
 you can still develop and test them outside of Telegram during the development
 process.
 
@@ -65,10 +65,10 @@ After this, you will see a similar message in your terminal:
 ```bash
 VITE v5.2.12  ready in 237 ms
 
-➜  Local:   https://localhost:5173/reactjs-template
-➜  Network: https://172.18.16.1:5173/reactjs-template
-➜  Network: https://172.19.32.1:5173/reactjs-template
-➜  Network: https://192.168.0.171:5173/reactjs-template
+➜  Local:   https://localhost:5173/equilibrium
+➜  Network: https://172.18.16.1:5173/equilibrium
+➜  Network: https://172.19.32.1:5173/equilibrium
+➜  Network: https://192.168.0.171:5173/equilibrium
 ➜  press h + enter to show help
 ```
 
@@ -76,7 +76,7 @@ Here, you can see the `Local` link, available locally, and `Network` links
 accessible to all devices in the same network with the current device.
 
 To view the application, you need to open the `Local`
-link (`https://localhost:5173/reactjs-template` in this example) in your
+link (`https://localhost:5173/equilibrium` in this example) in your
 browser:
 
 ![Application](assets/application.png)
@@ -96,7 +96,7 @@ production mode unless you fully understand its implications.
 > Telegram applications will not be able to display the application. These
 > operating systems enforce stricter security measures, preventing the Mini App
 > from loading. To address this issue, refer to
-> [this guide](https://docs.telegram-mini-apps.com/platform/getting-app-link#remote).
+> [this guide](https://docs.chatman-media.com/platform/getting-app-link#remote).
 
 ## Deploy
 
@@ -121,12 +121,12 @@ Before running the deployment process, ensure that you have done the following:
    your GitHub
    repository. Vite will use this value when creating paths to static assets.
 
-For instance, if your GitHub username is `telegram-mini-apps` and the repository
+For instance, if your GitHub username is `chatman-media` and the repository
 name is `is-awesome`, the value in the `homepage` field should be the following:
 
 ```json
 {
-  "homepage": "https://telegram-mini-apps.github.io/is-awesome"
+  "homepage": "https://chatman-media.github.io/is-awesome"
 }
 ```
 
@@ -160,7 +160,7 @@ npm run deploy
 After the deployment completed successfully, visit the page with data according
 to your username and repository name. Here is the page link example using the
 data mentioned above:
-https://telegram-mini-apps.github.io/is-awesome
+https://chatman-media.github.io/is-awesome
 
 ### GitHub Workflow
 
@@ -201,6 +201,6 @@ file according to your project's information.
 
 ## Useful Links
 
-- [Platform documentation](https://docs.telegram-mini-apps.com/)
-- [@telegram-apps/sdk-react documentation](https://docs.telegram-mini-apps.com/packages/telegram-apps-sdk-react)
+- [Platform documentation](https://docs.chatman-media.com/)
+- [@telegram-apps/sdk-react documentation](https://docs.chatman-media.com/packages/telegram-apps-sdk-react)
 - [Telegram developers community chat](https://t.me/devs)
