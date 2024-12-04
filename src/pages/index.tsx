@@ -51,33 +51,34 @@ export const IndexPage: FC = () => {
     if (predictions.length > 0) {
       const face = predictions[0];
       const x = Math.max(0, face.topLeft[0] - 50);
-      const y = Math.max(0, face.topLeft[1] - 50);
+      const y = Math.max(0, face.topLeft[1] - 100);
       const width = Math.min(canvas.width - x, face.bottomRight[0] - face.topLeft[0] + 100);
-      const height = Math.min(canvas.height - y, face.bottomRight[1] - face.topLeft[1] + 100);
+      const height = Math.min(canvas.height - y, face.bottomRight[1] - face.topLeft[1] + 160);
       
-      const size = Math.max(width, height);
       const faceCanvas = document.createElement('canvas');
-      faceCanvas.width = size;
-      faceCanvas.height = size;
+      const canvasWidth = width;
+      const canvasHeight = Math.max(height, width * 1.25);
+      faceCanvas.width = canvasWidth;
+      faceCanvas.height = canvasHeight;
       const faceCtx = faceCanvas.getContext('2d');
       
       if (faceCtx) {
-        const offsetX = (size - width) / 2;
-        const offsetY = (size - height) / 2;
+        const offsetX = (canvasWidth - width) / 2;
+        const offsetY = (canvasHeight - height) / 2;
         faceCtx.drawImage(
           canvas,
           x, y, width, height,
           offsetX, offsetY, width, height
         );
 
-        const centerX = size / 2;
+        const centerX = canvasWidth / 2;
 
         const leftFaceCanvas = document.createElement('canvas');
         const rightFaceCanvas = document.createElement('canvas');
-        leftFaceCanvas.width = size;
-        rightFaceCanvas.width = size;
-        leftFaceCanvas.height = size;
-        rightFaceCanvas.height = size;
+        leftFaceCanvas.width = canvasWidth;
+        rightFaceCanvas.width = canvasWidth;
+        leftFaceCanvas.height = canvasHeight;
+        rightFaceCanvas.height = canvasHeight;
 
         const leftCtx = leftFaceCanvas.getContext('2d');
         const rightCtx = rightFaceCanvas.getContext('2d');
@@ -89,19 +90,19 @@ export const IndexPage: FC = () => {
           leftCtx.scale(-1, 1);
           leftCtx.drawImage(
             faceCanvas,
-            0, 0, centerX, size,
-            -centerX, 0, centerX, size
+            0, 0, centerX, canvasHeight,
+            -centerX, 0, centerX, canvasHeight
           );
           leftCtx.restore();
 
-          rightCtx.drawImage(faceCanvas, 0, 0);
-          rightCtx.save();
           rightCtx.translate(centerX, 0);
+          rightCtx.drawImage(faceCanvas, centerX, 0, centerX, canvasHeight, 0, 0, centerX, canvasHeight);
+          rightCtx.save();
           rightCtx.scale(-1, 1);
           rightCtx.drawImage(
             faceCanvas,
-            centerX, 0, centerX, size,
-            centerX, 0, centerX, size
+            centerX, 0, centerX, canvasHeight,
+            0, 0, centerX, canvasHeight
           );
           rightCtx.restore();
 
