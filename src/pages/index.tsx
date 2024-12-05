@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import type { FC } from "react";
+import type { ChangeEvent, FC } from "react";
 import * as blazeface from "@tensorflow-models/blazeface";
 import "@tensorflow/tfjs";
 
@@ -18,6 +18,37 @@ export const IndexPage: FC = () => {
   const [rightHalf, setRightHalf] = useState<string | null>(null);
   const [model, setModel] = useState<blazeface.BlazeFaceModel | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [alignedPhoto, setAlignedPhoto] = useState<string | null>(null);
+  const [face, setFace] = useState<BlazeFacePrediction | null>(null);
+  const [canvasWidth, setCanvasWidth] = useState<number>(0);
+  const [canvasHeight, setCanvasHeight] = useState<number>(0);
+
+  // Добавляем функцию для поворота точки вокруг центра
+  const rotatePoint = (
+    x: number,
+    y: number,
+    centerX: number,
+    centerY: number,
+    angleInDegrees: number
+  ): [number, number] => {
+    const angleInRadians = (angleInDegrees * Math.PI) / 180;
+    const cosTheta = Math.cos(angleInRadians);
+    const sinTheta = Math.sin(angleInRadians);
+    
+    // Смещаем точку относительно центра вращения
+    const translatedX = x - centerX;
+    const translatedY = y - centerY;
+    
+    // Поворачиваем точку
+    const rotatedX = translatedX * cosTheta - translatedY * sinTheta;
+    const rotatedY = translatedX * sinTheta + translatedY * cosTheta;
+    
+    // Возвращаем точку обратно
+    return [
+      rotatedX + centerX,
+      rotatedY + centerY
+    ];
+  };
 
   // Загружаем модель при монтировании
   useEffect(() => {
@@ -53,6 +84,7 @@ export const IndexPage: FC = () => {
 
     if (predictions.length > 0) {
       const face = predictions[0];
+      
       const x = Math.max(0, face.topLeft[0] - 50);
       const y = Math.max(0, face.topLeft[1] - 100);
       const width = Math.min(
@@ -70,10 +102,100 @@ export const IndexPage: FC = () => {
       faceCanvas.width = canvasWidth;
       faceCanvas.height = canvasHeight;
       const faceCtx = faceCanvas.getContext("2d");
+      setCanvasWidth(canvasWidth);
+      setCanvasHeight(canvasHeight);
 
+      const leftEye = face.landmarks[1];   // Левый глаз
+      const rightEye = face.landmarks[0];  // Правый глаз
+      const nose = face.landmarks[2];      // Кончик носа
+      const mouth = face.landmarks[3];     // Рот
+      
+      // Добавляем пересчет координат landmarks
+      const adjustedLandmarks = face.landmarks.map(point => {
+        // Сначала вычитаем смещение (x, y)
+        const adjustedX = point[0] - x;
+        const adjustedY = point[1] - y;
+        
+        // Учитываем смещение из-за центрирования изображения
+        const offsetX = (canvasWidth - width) / 2;
+        const offsetY = (canvasHeight - height) / 2;
+        
+        return [
+          adjustedX + offsetX,
+          adjustedY + offsetY
+        ] as [number, number];
+      });
+
+      // Обновляем face с новыми координатами
+      setFace({
+        ...face,
+        landmarks: adjustedLandmarks
+      });
+
+      // Функция для проверки выравнивания лица
+      const getFaceAlignment = (rotationAngle: number) => {
+        // Поворачиваем все ключевые точки
+        const rotatedLeftEye = rotatePoint(leftEye[0], leftEye[1], canvasWidth / 2, canvasHeight / 2, rotationAngle);
+        const rotatedRightEye = rotatePoint(rightEye[0], rightEye[1], canvasWidth / 2, canvasHeight / 2, rotationAngle);
+        const rotatedNose = rotatePoint(nose[0], nose[1], canvasWidth / 2, canvasHeight / 2, rotationAngle);
+        const rotatedMouth = rotatePoint(mouth[0], mouth[1], canvasWidth / 2, canvasHeight / 2, rotationAngle);
+        
+        // Находим центр между глазами
+        const eyesCenterX = (rotatedLeftEye[0] + rotatedRightEye[0]) / 2;
+        const eyesCenterY = (rotatedLeftEye[1] + rotatedRightEye[1]) / 2;
+        
+        // Проверяем горизонтальное выравнивание глаз
+        const eyesHorizontalDiff = Math.abs(rotatedLeftEye[1] - rotatedRightEye[1]);
+        
+        // Проверяем вертикальное выравнивание между центром глаз и носом
+        const noseVerticalDiff = Math.abs(rotatedNose[0] - eyesCenterX);
+        
+        // Проверяем вертикальное выравнивание рта относительно носа
+        const mouthVerticalDiff = Math.abs(rotatedMouth[0] - rotatedNose[0]);
+        
+        // Проверяем горизонтальное расстояние между глазами
+        const eyesDistance = Math.abs(rotatedLeftEye[0] - rotatedRightEye[0]);
+        
+        // Изменяем веса параметров, делая акцент на расстоянии между глазами
+        return (
+          eyesHorizontalDiff * 0.2 +    // Уменьшаем вес горизонтального выравнивания глаз
+          noseVerticalDiff * 0.1 +      // Оставляем небольшой вес для носа
+          mouthVerticalDiff * 0.1 +     // Оставляем небольшой вес для рта
+          Math.abs(eyesDistance - (canvasWidth * 0.3)) * 0.6  // Увеличиваем вес расстояния между глазами
+        );
+      };
+
+      // Также можно уточнить диапазон поиска угла
+      let bestAngle = 0;
+      let minDifference = getFaceAlignment(0);
+
+      // Сначала грубый поиск
+      for (let angle = -45; angle <= 45; angle += 1) {
+        const difference = getFaceAlignment(angle);
+        if (difference < minDifference) {
+          minDifference = difference;
+          bestAngle = angle;
+        }
+      }
+
+      // Затем точная подстройка вокруг найденного угла
+      const fineRange = 2; // градуса в каждую сторону
+      for (let angle = bestAngle - fineRange; angle <= bestAngle + fineRange; angle += 0.1) {
+        const difference = getFaceAlignment(angle);
+        if (difference < minDifference) {
+          minDifference = difference;
+          bestAngle = angle;
+        }
+      }
+
+      // Применяем найденный угол
       if (faceCtx) {
         const offsetX = (canvasWidth - width) / 2;
         const offsetY = (canvasHeight - height) / 2;
+        faceCtx.save();
+        faceCtx.translate(canvasWidth / 2, canvasHeight / 2);
+        faceCtx.rotate(bestAngle * Math.PI / 180);
+        faceCtx.translate(-canvasWidth / 2, -canvasHeight / 2);
         faceCtx.drawImage(
           canvas,
           x,
@@ -85,6 +207,10 @@ export const IndexPage: FC = () => {
           width,
           height,
         );
+        faceCtx.restore();
+
+        // Сохраняем выровненное фото
+        setAlignedPhoto(faceCanvas.toDataURL("image/jpeg"));
 
         const centerX = canvasWidth / 2;
 
@@ -187,7 +313,7 @@ export const IndexPage: FC = () => {
   };
 
   const handleFileSelect = async (
-    event: React.ChangeEvent<HTMLInputElement>,
+    event: ChangeEvent<HTMLInputElement>,
   ) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -220,17 +346,69 @@ export const IndexPage: FC = () => {
           display: "flex",
           flexDirection: "column",
           height: "100vh",
+          maxHeight: '1200px',
           backgroundColor: "#000",
           padding: "20px",
           gap: "20px",
+          alignItems: "center",
         }}
       >
         <div
           style={{
+            flex: 1,
             display: "flex",
             flexDirection: "column",
-            gap: "5px",
-            flex: 1,
+            alignItems: "center",
+            position: "relative",
+            width: "100%",
+            maxWidth: "800px",
+          }}
+        >
+          <div 
+            style={{ 
+              position: 'relative',
+              width: "100%",
+              display: "flex",
+              justifyContent: "center",
+            }}
+          >
+            <img
+              src={alignedPhoto!}
+              alt="Aligned"
+              style={{
+                width: "100%",
+                objectFit: "contain",
+              }}
+            />
+            {/* Вертикальная линия */}
+            <div
+              style={{
+                position: "absolute",
+                top: 0,
+                left: "50%",
+                width: "2px",
+                height: "100%",
+                backgroundColor: "#fff",
+                transform: "translateX(-50%)",
+              }}
+            />
+          </div>
+          <span
+            style={{
+              color: "#fff",
+              marginTop: "8px",
+              fontSize: "14px",
+            }}
+          >
+            Выровненное фото
+          </span>
+        </div>
+
+        <div
+          style={{
+            display: "flex",
+            gap: "20px",
+            justifyContent: "center",
           }}
         >
           <div
@@ -239,13 +417,14 @@ export const IndexPage: FC = () => {
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
+              maxWidth: "40%",
             }}
           >
             <img
               src={leftHalf}
               alt="Left half"
               style={{
-                width: "80%",
+                width: "100%",
                 objectFit: "contain",
               }}
             />
@@ -265,13 +444,14 @@ export const IndexPage: FC = () => {
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
+              maxWidth: "40%",
             }}
           >
             <img
               src={rightHalf}
               alt="Right half"
               style={{
-                width: "80%",
+                width: "100%",
                 objectFit: "contain",
               }}
             />
@@ -299,6 +479,8 @@ export const IndexPage: FC = () => {
               setPhoto(null);
               setLeftHalf(null);
               setRightHalf(null);
+              setAlignedPhoto(null);
+              setFace(null);
             }}
             style={{
               padding: "12px 24px",
